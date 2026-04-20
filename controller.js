@@ -26,8 +26,6 @@ $(document).ready(function () {
         }
     });
 
-    //mic button click event 
-
     $("#MicButton").click(function () { 
         
         $("#Oval").attr("hidden", true);
