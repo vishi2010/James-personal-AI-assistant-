@@ -3,7 +3,7 @@ import speech_recognition as sr
 import eel
 import time
 
-# Initialize Gemini API
+
 GEMINI_AVAILABLE = False
 client = None
 
