@@ -57,7 +57,6 @@ def PlayYoutube(command):
         speak("I couldn't find what you were looking for")
 
 def findContact(name):
-    """Find contact in database by name"""
     try:
         name = name.strip().lower()
         cursor.execute("SELECT name, mobile_no FROM contacts WHERE LOWER(name) LIKE ? OR LOWER(name) LIKE ?", 
@@ -69,19 +68,14 @@ def findContact(name):
         return []
 
 def whatsappMessage(command):
-    """Send WhatsApp message"""
     try:
-        # Extract contact name and message
-        # Pattern: "send message to [contact] saying [message]" or "message [contact] [message]"
         command = command.lower()
         
         if "send message to" in command and "saying" in command:
-            # Pattern: "send message to john saying hello"
             parts = command.split("send message to")[1].split("saying")
             contact_name = parts[0].strip()
             message_text = parts[1].strip()
         elif "message" in command:
-            # Pattern: "message john hello how are you"
             parts = command.split("message")[1].strip().split()
             if len(parts) >= 2:
                 contact_name = parts[0]
@@ -93,7 +87,6 @@ def whatsappMessage(command):
             speak("Please say 'send message to [name] saying [message]' or 'message [name] [message]'")
             return
 
-        # Find contact
         contacts = findContact(contact_name)
         
         if not contacts:
@@ -106,32 +99,23 @@ def whatsappMessage(command):
         contact_name_db = contacts[0][0]
         phone_number = contacts[0][1]
         
-        # Clean phone number (remove spaces, dashes, etc.)
         phone_number = ''.join(filter(str.isdigit, phone_number))
         
-        # Add country code if not present (assuming US/Canada, adjust as needed)
         if not phone_number.startswith('1') and len(phone_number) == 10:
             phone_number = '1' + phone_number
         
         speak(f"Sending message to {contact_name_db}")
         
-        # Encode message for URL
         encoded_message = urllib.parse.quote(message_text)
         
-        # Create WhatsApp Web URL
         whatsapp_url = f"https://web.whatsapp.com/send?phone={phone_number}&text={encoded_message}"
         
-        # Open WhatsApp Web
         webbrowser.open(whatsapp_url)
         
-        # Wait for page to load
         time.sleep(5)
         
-        # Auto-send the message (optional - removes this if you want manual sending)
         try:
-            # Wait a bit more for the page to fully load
             time.sleep(3)
-            # Press Enter to send (this requires WhatsApp Web to be loaded)
             pyautogui.press('enter')
             speak("Message sent successfully")
         except Exception as e:
@@ -143,13 +127,10 @@ def whatsappMessage(command):
         print(f"WhatsApp message error: {e}")
 
 def whatsappCall(command):
-    """Make WhatsApp call"""
     try:
-        # Extract contact name
         command = command.lower()
         
         if "call" in command:
-            # Pattern: "call john" or "whatsapp call john"
             if "whatsapp call" in command:
                 contact_name = command.replace("whatsapp call", "").strip()
             else:
@@ -170,29 +151,21 @@ def whatsappCall(command):
         contact_name_db = contacts[0][0]
         phone_number = contacts[0][1]
         
-        # Clean phone number
         phone_number = ''.join(filter(str.isdigit, phone_number))
         
-        # Add country code if not present
         if not phone_number.startswith('1') and len(phone_number) == 10:
             phone_number = '1' + phone_number
         
         speak(f"Calling {contact_name_db} on WhatsApp")
         
-        # Create WhatsApp Web URL for calling
         whatsapp_url = f"https://web.whatsapp.com/send?phone={phone_number}"
         
-        # Open WhatsApp Web
         webbrowser.open(whatsapp_url)
         
-        # Wait for page to load
         time.sleep(8)
         
-        # Try to click the call button (this might need adjustment based on WhatsApp Web updates)
         try:
-            # Look for call button and click it
-            # Note: This is approximate and may need adjustment
-            pyautogui.hotkey('ctrl', 'shift', 'c')  # WhatsApp Web shortcut for voice call
+            pyautogui.hotkey('ctrl', 'shift', 'c')  
             speak("Call initiated. Please check your WhatsApp Web window.")
         except Exception as e:
             speak("WhatsApp opened. Please click the call button manually.")
@@ -203,13 +176,12 @@ def whatsappCall(command):
         print(f"WhatsApp call error: {e}")
 
 def listContacts():
-    """List all contacts in database"""
     try:
         cursor.execute("SELECT name FROM contacts ORDER BY name")
         results = cursor.fetchall()
         
         if results:
-            contact_names = [contact[0] for contact in results[:10]]  # Limit to first 10
+            contact_names = [contact[0] for contact in results[:10]]
             if len(results) > 10:
                 speak(f"You have {len(results)} contacts. Here are the first 10: {', '.join(contact_names)}")
             else:
@@ -221,9 +193,7 @@ def listContacts():
         print(f"List contacts error: {e}")
 
 def searchContact(command):
-    """Search for a specific contact"""
     try:
-        # Extract search term
         command = command.lower()
         if "search contact" in command:
             search_term = command.replace("search contact", "").strip()
